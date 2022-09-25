@@ -155,6 +155,10 @@ void Controller::render(float ifps)
     QtImGui::newFrame();
     //ImGui::ShowDemoWindow();
 
+    ImGui::SetNextWindowSize(ImVec2(420, 820), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Debug");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
     glViewport(0, 0, mWindow->width(), mWindow->height());
     ImGui::Render();
     QtImGui::render();
