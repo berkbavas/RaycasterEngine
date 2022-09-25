@@ -81,7 +81,7 @@ void Controller::init()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mCleanerFramebuffer);
     glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mRaycasterOutputImage, 0);
 
-    mPlayer.position = QVector2D(20, 12);
+    mPlayer.position = QVector2D(7, 4);
     mPlayer.direction = QVector2D(-1, 0);
     mPlayer.movementSpeed = 5;
     mPlayer.angularSpeed = 120; // Degree per second
