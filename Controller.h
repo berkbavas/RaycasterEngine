@@ -3,6 +3,7 @@
 
 #include "Quad.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #include <QKeyEvent>
 #include <QObject>
@@ -40,9 +41,10 @@ private:
     unsigned int mCleanerFramebuffer;
     unsigned int mRaycasterOutputImage;
     unsigned int mRaycasterWorldMap;
-
     Shader *mScreenShader;
-    Shader *mFlatRaycasterShader;
+    Shader *mRaycasterFlatShader;
+    Shader *mRaycasterFloorShader;
+    Shader *mRaycasterTexturedShader;
     Quad *mQuad;
 
     // Events
@@ -65,6 +67,22 @@ private:
     } mCamera;
 
     QMap<Qt::Key, bool> mPressedKeys;
+
+    enum class TextureName { //
+        Barrel,
+        BlueStone,
+        ColorStone,
+        Eagle,
+        GreenLight,
+        GreyStone,
+        Mossy,
+        Pillar,
+        PurpleStone,
+        RedBrick,
+        Wood
+    };
+
+    QMap<TextureName, Texture *> mTextures;
 
     static const int WORLD_MAP[24][24];
 };

@@ -3,7 +3,11 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
-layout(r8i,     location = 1, binding = 1) uniform iimage2D worldMap;
+layout(rgba8,   location = 1, binding = 1) uniform image2D redbrick;
+layout(rgba8,   location = 2, binding = 2) uniform image2D eagle;
+layout(rgba8,   location = 3, binding = 3) uniform image2D mossy;
+layout(rgba8,   location = 4, binding = 4) uniform image2D colorstone;
+layout(r8i,     location = 5, binding = 5) uniform iimage2D worldMap;
 
 struct Player {
     vec2 position;
@@ -125,23 +129,45 @@ void main()
         drawEnd = int(screen.height - 1);
 
 
-    vec3 color;
-    int node = imageLoad(worldMap, map).r;
-
-    if(node == 1)
-        color = vec3(1,0,0);
-    else if(node == 2)
-        color = vec3(0,1,0);
-    else if(node == 3)
-        color = vec3(0,0,1);
-    else if(node == 4)
-        color = vec3(1,1,1);
+    //calculate value of wallX
+    float wallX; //where exactly the wall was hit
+    if(side == 0)
+        wallX = player.position.y + perpWallDist * rayDir.y;
     else
-        color = vec3(1,1,0);
+        wallX = player.position.x + perpWallDist * rayDir.x;
 
-    // Give x and y sides different brightness
-    if(side == 1) {color = color / 2;}
+    wallX -= floor(wallX);
+
+    //x coordinate on the texture
+    int tx = int(wallX * float(64));
+    if(side == 0 && rayDir.x > 0)
+        tx = 64 - tx - 1;
+    if(side == 1 && rayDir.y < 0)
+        tx = 64 - tx - 1;
+
+    // TODO: an integer-only bresenham or DDA like algorithm could make the texture coordinate stepping faster
+    // How much to increase the texture coordinate per screen pixel
+    float step = 1.0 * 64 / lineHeight;
+    // Starting texture coordinate
+    float texPos = (drawStart - screen.height / 2 + lineHeight / 2) * step;
+
+    int texNum = imageLoad(worldMap, map).r;
 
     for(int y = drawStart; y < drawEnd; y++)
-        imageStore(outputImage, ivec2(gl_GlobalInvocationID.x, y), vec4(color, 1));
+    {
+      // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+      int ty = 64 - int(texPos) & (64 - 1);
+      texPos += step;
+      vec3 color = vec3(1,0,0);
+      if(texNum == 1) color = imageLoad(redbrick, ivec2(tx, ty)).rgb;
+      else if(texNum == 2) color = imageLoad(eagle, ivec2(tx, ty)).rgb;
+      else if(texNum == 3) color = imageLoad(mossy, ivec2(tx, ty)).rgb;
+      else color = imageLoad(colorstone, ivec2(tx, ty)).rgb;
+
+      if(side == 1)
+          color = color / 2;
+
+      imageStore(outputImage, ivec2(gl_GlobalInvocationID.x, y), vec4(color, 1));
+    }
+
 }

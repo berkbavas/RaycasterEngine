@@ -16,6 +16,7 @@ SOURCES += \
     Main.cpp \
     Quad.cpp \
     Shader.cpp \
+    Texture.cpp \
     Window.cpp
 
 HEADERS += \
@@ -24,6 +25,7 @@ HEADERS += \
     Helper.h \
     Quad.h \
     Shader.h \
+    Texture.h \
     Window.h \
 
 # Default rules for deployment.

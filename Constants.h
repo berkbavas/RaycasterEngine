@@ -2,6 +2,6 @@
 #define CONSTANTS_H
 
 #define SCREEN_WIDTH 1600
-#define SCREEN_HEIGHT 1200
+#define SCREEN_HEIGHT 900
 
 #endif // CONSTANTS_H

@@ -19,6 +19,19 @@ void Controller::init()
 
     mQuad = new Quad;
 
+    // Textures
+    mTextures.insert(TextureName::Barrel, new Texture(":/Resources/Textures/barrel.png"));
+    mTextures.insert(TextureName::BlueStone, new Texture(":/Resources/Textures/bluestone.png"));
+    mTextures.insert(TextureName::ColorStone, new Texture(":/Resources/Textures/colorstone.png"));
+    mTextures.insert(TextureName::Eagle, new Texture(":/Resources/Textures/eagle.png"));
+    mTextures.insert(TextureName::GreenLight, new Texture(":/Resources/Textures/greenlight.png"));
+    mTextures.insert(TextureName::GreyStone, new Texture(":/Resources/Textures/greystone.png"));
+    mTextures.insert(TextureName::Mossy, new Texture(":/Resources/Textures/mossy.png"));
+    mTextures.insert(TextureName::Pillar, new Texture(":/Resources/Textures/pillar.png"));
+    mTextures.insert(TextureName::PurpleStone, new Texture(":/Resources/Textures/purplestone.png"));
+    mTextures.insert(TextureName::RedBrick, new Texture(":/Resources/Textures/redbrick.png"));
+    mTextures.insert(TextureName::Wood, new Texture(":/Resources/Textures/wood.png"));
+
     mScreenShader = new Shader("Screen Shader");
     mScreenShader->addPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Screen.vert");
     mScreenShader->addPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Screen.frag");
@@ -27,14 +40,32 @@ void Controller::init()
     mScreenShader->addAttribute("textureCoords");
     mScreenShader->init();
 
-    mFlatRaycasterShader = new Shader("Flat Raycaster Compute Shader");
-    mFlatRaycasterShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFlat.glsl");
-    mFlatRaycasterShader->addUniform("player.position");
-    mFlatRaycasterShader->addUniform("player.direction");
-    mFlatRaycasterShader->addUniform("camera.plane");
-    mFlatRaycasterShader->addUniform("screen.width");
-    mFlatRaycasterShader->addUniform("screen.height");
-    mFlatRaycasterShader->init();
+    mRaycasterFlatShader = new Shader("Raycaster Flat Compute Shader");
+    mRaycasterFlatShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFlat.glsl");
+    mRaycasterFlatShader->addUniform("player.position");
+    mRaycasterFlatShader->addUniform("player.direction");
+    mRaycasterFlatShader->addUniform("camera.plane");
+    mRaycasterFlatShader->addUniform("screen.width");
+    mRaycasterFlatShader->addUniform("screen.height");
+    mRaycasterFlatShader->init();
+
+    mRaycasterTexturedShader = new Shader("Raycaster Textured Compute Shader");
+    mRaycasterTexturedShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterTextured.glsl");
+    mRaycasterTexturedShader->addUniform("player.position");
+    mRaycasterTexturedShader->addUniform("player.direction");
+    mRaycasterTexturedShader->addUniform("camera.plane");
+    mRaycasterTexturedShader->addUniform("screen.width");
+    mRaycasterTexturedShader->addUniform("screen.height");
+    mRaycasterTexturedShader->init();
+
+    mRaycasterFloorShader = new Shader("Raycaster Floor Compute Shader");
+    mRaycasterFloorShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFloor.glsl");
+    mRaycasterFloorShader->addUniform("player.position");
+    mRaycasterFloorShader->addUniform("player.direction");
+    mRaycasterFloorShader->addUniform("camera.plane");
+    mRaycasterFloorShader->addUniform("screen.width");
+    mRaycasterFloorShader->addUniform("screen.height");
+    mRaycasterFloorShader->init();
 
     glGenTextures(1, &mRaycasterOutputImage);
     glActiveTexture(GL_TEXTURE0);
@@ -75,22 +106,42 @@ void Controller::render(float ifps)
     update();
 
     // Raycaster stuff
+
+    // Clean
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mCleanerFramebuffer);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    mFlatRaycasterShader->bind();
-    mFlatRaycasterShader->setUniformValue("player.position", mPlayer.position);
-    mFlatRaycasterShader->setUniformValue("player.direction", mPlayer.direction);
-    mFlatRaycasterShader->setUniformValue("camera.plane", mCamera.plane);
-    mFlatRaycasterShader->setUniformValue("screen.width", (float) SCREEN_WIDTH);
-    mFlatRaycasterShader->setUniformValue("screen.height", (float) SCREEN_HEIGHT);
+    // Floor and Ceiling
+    mRaycasterFloorShader->bind();
+    mRaycasterFloorShader->setUniformValue("player.position", mPlayer.position);
+    mRaycasterFloorShader->setUniformValue("player.direction", mPlayer.direction);
+    mRaycasterFloorShader->setUniformValue("camera.plane", mCamera.plane);
+    mRaycasterFloorShader->setUniformValue("screen.width", SCREEN_WIDTH);
+    mRaycasterFloorShader->setUniformValue("screen.height", SCREEN_HEIGHT);
+    glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, mTextures.value(TextureName::GreyStone)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8); // Floor
+    glBindImageTexture(2, mTextures.value(TextureName::Wood)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);      // Ceiling
+    glDispatchCompute(1, SCREEN_HEIGHT / 2 - 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    mRaycasterFloorShader->release();
 
-    glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R8I);
+    // Textured Raycaster
+    mRaycasterTexturedShader->bind();
+    mRaycasterTexturedShader->setUniformValue("player.position", mPlayer.position);
+    mRaycasterTexturedShader->setUniformValue("player.direction", mPlayer.direction);
+    mRaycasterTexturedShader->setUniformValue("camera.plane", mCamera.plane);
+    mRaycasterTexturedShader->setUniformValue("screen.width", SCREEN_WIDTH);
+    mRaycasterTexturedShader->setUniformValue("screen.height", SCREEN_HEIGHT);
+    glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, mTextures.value(TextureName::RedBrick)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(2, mTextures.value(TextureName::Eagle)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(3, mTextures.value(TextureName::Mossy)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(4, mTextures.value(TextureName::ColorStone)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(5, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8I);
     glDispatchCompute(SCREEN_WIDTH, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    mFlatRaycasterShader->release();
+    mRaycasterTexturedShader->release();
 
     // Render to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -201,28 +252,28 @@ void Controller::resize(int w, int h)
 }
 
 int const Controller::WORLD_MAP[24][24] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, //
+    {1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1}, //
+    {2, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 2}, //
+    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
+    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1}, //
+    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
+    {1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1}, //
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 1}, //
+    {2, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 2}, //
+    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 1}, //
+    {1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 1}, //
     {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
     {1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
+    {2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
     {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  //
+    {1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1}  //
 };
