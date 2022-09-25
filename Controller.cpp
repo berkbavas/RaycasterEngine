@@ -20,17 +20,7 @@ void Controller::init()
     mQuad = new Quad;
 
     // Textures
-    mTextures.insert(TextureName::Barrel, new Texture(":/Resources/Textures/barrel.png"));
-    mTextures.insert(TextureName::BlueStone, new Texture(":/Resources/Textures/bluestone.png"));
-    mTextures.insert(TextureName::ColorStone, new Texture(":/Resources/Textures/colorstone.png"));
-    mTextures.insert(TextureName::Eagle, new Texture(":/Resources/Textures/eagle.png"));
-    mTextures.insert(TextureName::GreenLight, new Texture(":/Resources/Textures/greenlight.png"));
-    mTextures.insert(TextureName::GreyStone, new Texture(":/Resources/Textures/greystone.png"));
-    mTextures.insert(TextureName::Mossy, new Texture(":/Resources/Textures/mossy.png"));
-    mTextures.insert(TextureName::Pillar, new Texture(":/Resources/Textures/pillar.png"));
-    mTextures.insert(TextureName::PurpleStone, new Texture(":/Resources/Textures/purplestone.png"));
-    mTextures.insert(TextureName::RedBrick, new Texture(":/Resources/Textures/redbrick.png"));
-    mTextures.insert(TextureName::Wood, new Texture(":/Resources/Textures/wood.png"));
+    mTextures.insert(TextureName::All, new Texture(":/Resources/Textures/all.png"));
 
     mScreenShader = new Shader("Screen Shader");
     mScreenShader->addPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Screen.vert");
@@ -120,8 +110,7 @@ void Controller::render(float ifps)
     mRaycasterFloorShader->setUniformValue("screen.width", SCREEN_WIDTH);
     mRaycasterFloorShader->setUniformValue("screen.height", SCREEN_HEIGHT);
     glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, mTextures.value(TextureName::GreyStone)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8); // Floor
-    glBindImageTexture(2, mTextures.value(TextureName::Wood)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);      // Ceiling
+    glBindImageTexture(1, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
     glDispatchCompute(1, SCREEN_HEIGHT / 2 - 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     mRaycasterFloorShader->release();
@@ -134,11 +123,8 @@ void Controller::render(float ifps)
     mRaycasterTexturedShader->setUniformValue("screen.width", SCREEN_WIDTH);
     mRaycasterTexturedShader->setUniformValue("screen.height", SCREEN_HEIGHT);
     glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, mTextures.value(TextureName::RedBrick)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-    glBindImageTexture(2, mTextures.value(TextureName::Eagle)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-    glBindImageTexture(3, mTextures.value(TextureName::Mossy)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-    glBindImageTexture(4, mTextures.value(TextureName::ColorStone)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-    glBindImageTexture(5, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8I);
+    glBindImageTexture(1, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8I);
+    glBindImageTexture(2, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
     glDispatchCompute(SCREEN_WIDTH, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     mRaycasterTexturedShader->release();
@@ -256,28 +242,28 @@ void Controller::resize(int w, int h)
 }
 
 int const Controller::WORLD_MAP[24][24] = {
-    {1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {2, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 2}, //
-    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 1}, //
-    {2, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 2}, //
-    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 0, 0, 0, 5, 0, 4, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, //
-    {1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1}  //
+    {2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
+    {1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 2, 2, 2}, //
+    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 2, 2, 0, 8, 0, 8, 0, 2}, //
+    {2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2}, //
+    {2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2}, //
+    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2}, //
+    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 0, 0, 2, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 2, 2, 2, 2, 2, 0, 0, 2, 0, 8, 0, 2}, //
+    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 2, 0, 8, 0, 8, 0, 8, 0, 2}, //
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
+    {2, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 2, 0, 8, 0, 8, 0, 8, 0, 2}, //
+    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2}, //
+    {2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}  //
 };

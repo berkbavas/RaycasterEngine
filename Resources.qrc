@@ -16,5 +16,6 @@
         <file>Resources/Textures/wood.png</file>
         <file>Resources/Shaders/RaycasterFloor.glsl</file>
         <file>Resources/Shaders/RaycasterTextured.glsl</file>
+        <file>Resources/Textures/all.png</file>
     </qresource>
 </RCC>

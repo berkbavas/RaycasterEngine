@@ -3,8 +3,7 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
-layout(rgba8,   location = 1, binding = 1) uniform image2D floorTexture;
-layout(rgba8,   location = 2, binding = 2) uniform image2D ceilingTexture;
+layout(rgba8,   location = 1, binding = 1) uniform image2D textures;
 
 struct Player {
     vec2 position;
@@ -83,11 +82,11 @@ void main()
       floorY += floorStepY;
 
       // Floor
-      vec3 color = imageLoad(floorTexture, ivec2(tx, ty)).rgb / 1.5;
+      vec3 color = imageLoad(textures, ivec2(3 * 64  + tx, ty)).rgb / 2;
       imageStore(outputImage, ivec2(x, screen.height - y - 1), vec4(color, 1));
 
       // Ceiling
-      color = imageLoad(ceilingTexture, ivec2(tx, ty)).rgb / 1.5;
+      color = imageLoad(textures, ivec2(6 * 64 + tx, ty)).rgb / 2;
       imageStore(outputImage, ivec2(x, y), vec4(color, 1));
     }
 }

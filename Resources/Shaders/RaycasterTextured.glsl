@@ -3,11 +3,9 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
-layout(rgba8,   location = 1, binding = 1) uniform image2D redbrick;
-layout(rgba8,   location = 2, binding = 2) uniform image2D eagle;
-layout(rgba8,   location = 3, binding = 3) uniform image2D mossy;
-layout(rgba8,   location = 4, binding = 4) uniform image2D colorstone;
-layout(r8i,     location = 5, binding = 5) uniform iimage2D worldMap;
+layout(r8i,     location = 1, binding = 1) uniform iimage2D worldMap;
+layout(rgba8,   location = 2, binding = 2) uniform image2D textures;
+
 
 struct Player {
     vec2 position;
@@ -151,18 +149,14 @@ void main()
     // Starting texture coordinate
     float texPos = (drawStart - screen.height / 2 + lineHeight / 2) * step;
 
-    int texNum = imageLoad(worldMap, map).r;
+    int texNum = imageLoad(worldMap, map).r - 1;
 
     for(int y = drawStart; y < drawEnd; y++)
     {
       // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
       int ty = 64 - int(texPos) & (64 - 1);
       texPos += step;
-      vec3 color = vec3(1,0,0);
-      if(texNum == 1) color = imageLoad(redbrick, ivec2(tx, ty)).rgb;
-      else if(texNum == 2) color = imageLoad(eagle, ivec2(tx, ty)).rgb;
-      else if(texNum == 3) color = imageLoad(mossy, ivec2(tx, ty)).rgb;
-      else color = imageLoad(colorstone, ivec2(tx, ty)).rgb;
+      vec3 color = imageLoad(textures, ivec2(64 * texNum + tx, ty)).rgb;
 
       if(side == 1)
           color = color / 2;

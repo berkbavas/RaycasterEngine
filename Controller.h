@@ -79,7 +79,8 @@ private:
         Pillar,
         PurpleStone,
         RedBrick,
-        Wood
+        Wood,
+        All
     };
 
     QMap<TextureName, Texture *> mTextures;
