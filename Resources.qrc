@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/Shaders/Screen.frag</file>
+        <file>Resources/Shaders/Screen.vert</file>
+        <file>Resources/Shaders/RaycasterFlat.glsl</file>
+    </qresource>
+</RCC>
