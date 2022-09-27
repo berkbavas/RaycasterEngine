@@ -57,6 +57,22 @@ void Controller::init()
     mRaycasterFloorShader->addUniform("screen.height");
     mRaycasterFloorShader->init();
 
+    mRaycasterSpritesShader = new Shader("Raycaster Sprites Compute Shader");
+    mRaycasterSpritesShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterSprites.glsl");
+    mRaycasterSpritesShader->addUniform("screen.width");
+    mRaycasterSpritesShader->addUniform("screen.height");
+    mRaycasterSpritesShader->addUniform("sprite.width");
+    mRaycasterSpritesShader->addUniform("sprite.height");
+    mRaycasterSpritesShader->addUniform("sprite.screenX");
+    mRaycasterSpritesShader->addUniform("sprite.textureIndex");
+    mRaycasterSpritesShader->addUniform("draw.startX");
+    mRaycasterSpritesShader->addUniform("draw.endX");
+    mRaycasterSpritesShader->addUniform("draw.startY");
+    mRaycasterSpritesShader->addUniform("draw.endY");
+    mRaycasterSpritesShader->addUniform("draw.transformX");
+    mRaycasterSpritesShader->addUniform("draw.transformY");
+    mRaycasterSpritesShader->init();
+
     glGenTextures(1, &mRaycasterOutputImage);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mRaycasterOutputImage);
@@ -74,8 +90,14 @@ void Controller::init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, 24, 24, 0, GL_RED_INTEGER, GL_INT, WORLD_MAP);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, 24, 24, 0, GL_RED_INTEGER, GL_INT, mWorldMap);
     glGenerateMipmap(GL_TEXTURE_2D);
+
+    glGenTextures(1, &mRaycasterDepthBuffer);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_1D, mRaycasterDepthBuffer);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, SCREEN_WIDTH, 0, GL_RGBA, GL_FLOAT, NULL);
+    glGenerateMipmap(GL_TEXTURE_1D);
 
     glGenFramebuffers(1, &mCleanerFramebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mCleanerFramebuffer);
@@ -87,6 +109,8 @@ void Controller::init()
     mPlayer.angularSpeed = 120; // Degree per second
 
     mCamera.plane = QVector2D(0, float(SCREEN_WIDTH) / SCREEN_HEIGHT);
+
+    mSpriteIndices.resize(mSprites.size());
 }
 
 void Controller::render(float ifps)
@@ -99,8 +123,14 @@ void Controller::render(float ifps)
 
     // Clean
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mCleanerFramebuffer);
+    glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mRaycasterOutputImage, 0);
     glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mCleanerFramebuffer);
+    glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mRaycasterDepthBuffer, 0);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     // Floor and Ceiling
     mRaycasterFloorShader->bind();
@@ -115,7 +145,7 @@ void Controller::render(float ifps)
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     mRaycasterFloorShader->release();
 
-    // Textured Raycaster
+    // Textured Raycaster Walls
     mRaycasterTexturedShader->bind();
     mRaycasterTexturedShader->setUniformValue("player.position", mPlayer.position);
     mRaycasterTexturedShader->setUniformValue("player.direction", mPlayer.direction);
@@ -125,13 +155,108 @@ void Controller::render(float ifps)
     glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glBindImageTexture(1, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8I);
     glBindImageTexture(2, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(3, mRaycasterDepthBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glDispatchCompute(SCREEN_WIDTH, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     mRaycasterTexturedShader->release();
 
+    // Sprites
+
+    for (int i = 0; i < mSprites.size(); i++)
+    {
+        mSprites[i].distance = pow(mPlayer.position.x() - mSprites[i].x, 2) + pow(mPlayer.position.y() - mSprites[i].y, 2);
+        mSpriteIndices[i] = i;
+    }
+
+    // Sort sprites
+
+    std::vector<std::pair<double, int>> sortedSprites(mSprites.size());
+    for (int i = 0; i < sortedSprites.size(); i++)
+    {
+        sortedSprites[i].first = mSprites[i].distance;
+        sortedSprites[i].second = mSpriteIndices[i];
+    }
+
+    std::sort(sortedSprites.begin(), sortedSprites.end());
+
+    // Restore in reverse order to go from farthest to nearest
+    for (int i = 0; i < sortedSprites.size(); i++)
+        mSpriteIndices[i] = sortedSprites[sortedSprites.size() - i - 1].second;
+
+    for (int i = 0; i < mSprites.size(); i++)
+    {
+        int j = mSpriteIndices[i];
+        // Translate sprite position to relative to camera
+        double spriteX = mSprites[j].x - mPlayer.position.x();
+        double spriteY = mSprites[j].y - mPlayer.position.y();
+
+        QVector2D spritePos(mSprites[j].x, mSprites[j].y);
+        QVector2D spritePosRelative = spritePos - mPlayer.position;
+        QVector2D spriteDirRelative = spritePosRelative.normalized();
+        float dot = QVector2D::dotProduct(spriteDirRelative, mPlayer.direction);
+
+        // Frustum culling
+        if (dot < 0) // Sprite is behind us, don't draw
+            continue;
+
+        // Transform sprite with the inverse camera matrix
+        // [ planeX   dirX ] -1                                       [ dirY      -dirX ]
+        // [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
+        // [ planeY   dirY ]                                          [ -planeY  planeX ]
+
+        double invDet = 1.0 / (mCamera.plane.x() * mPlayer.direction.y() - mPlayer.direction.x() * mCamera.plane.y());
+
+        float transformX = invDet * (mPlayer.direction.y() * spriteX - mPlayer.direction.x() * spriteY);
+        float transformY = invDet * (-mCamera.plane.y() * spriteX + mCamera.plane.x() * spriteY); //this is actually the depth inside the screen, that what Z is in 3D
+
+        int spriteScreenX = int((SCREEN_WIDTH / 2.0f) * (1 + transformX / transformY));
+
+        // Calculate height of the sprite on screen
+        int spriteHeight = abs(int(SCREEN_HEIGHT / (transformY))); // Using 'transformY' instead of the real distance prevents fisheye
+
+        // Calculate lowest and highest pixel to fill in current stripe
+        int drawStartY = -spriteHeight / 2 + SCREEN_HEIGHT / 2.0;
+        if (drawStartY < 0)
+            drawStartY = 0;
+        int drawEndY = spriteHeight / 2 + SCREEN_HEIGHT / 2.0;
+        if (drawEndY >= SCREEN_HEIGHT)
+            drawEndY = SCREEN_HEIGHT - 1;
+
+        //calculate width of the sprite
+        int spriteWidth = abs(int(SCREEN_HEIGHT / transformY));
+        int drawStartX = -spriteWidth / 2 + spriteScreenX;
+        if (drawStartX < 0)
+            drawStartX = 0;
+        int drawEndX = spriteWidth / 2 + spriteScreenX;
+        if (drawEndX >= SCREEN_WIDTH)
+            drawEndX = SCREEN_WIDTH - 1;
+
+        mRaycasterSpritesShader->bind();
+
+        mRaycasterSpritesShader->setUniformValue("screen.width", SCREEN_WIDTH);
+        mRaycasterSpritesShader->setUniformValue("screen.height", SCREEN_HEIGHT);
+        mRaycasterSpritesShader->setUniformValue("sprite.width", spriteWidth);
+        mRaycasterSpritesShader->setUniformValue("sprite.height", spriteHeight);
+        mRaycasterSpritesShader->setUniformValue("sprite.screenX", spriteScreenX);
+        mRaycasterSpritesShader->setUniformValue("sprite.textureIndex", mSprites[j].texture);
+        mRaycasterSpritesShader->setUniformValue("draw.startX", drawStartX);
+        mRaycasterSpritesShader->setUniformValue("draw.endX", drawEndX);
+        mRaycasterSpritesShader->setUniformValue("draw.startY", drawStartY);
+        mRaycasterSpritesShader->setUniformValue("draw.endY", drawEndY);
+        mRaycasterSpritesShader->setUniformValue("draw.transformX", transformX);
+        mRaycasterSpritesShader->setUniformValue("draw.transformY", transformY);
+
+        glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glBindImageTexture(1, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+        glBindImageTexture(2, mRaycasterDepthBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glDispatchCompute(drawEndX - drawStartX, 1, 1);
+        glMemoryBarrier(GL_ALL_BARRIER_BITS);
+        mRaycasterSpritesShader->release();
+    }
+
     // Render to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     mScreenShader->bind();
     mScreenShader->setSampler("screenTexture", 0, mRaycasterOutputImage);
@@ -143,6 +268,7 @@ void Controller::render(float ifps)
 
     ImGui::SetNextWindowSize(ImVec2(420, 820), ImGuiCond_FirstUseEver);
     ImGui::Begin("Debug");
+    ImGui::Text("Player Position: (%.2f, %.2f)", mPlayer.position.x(), mPlayer.position.y());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     glViewport(0, 0, mWindow->width(), mWindow->height());
@@ -240,30 +366,3 @@ void Controller::resize(int w, int h)
 
     mWindow->doneCurrent();
 }
-
-int const Controller::WORLD_MAP[24][24] = {
-    {2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 2, 2, 2}, //
-    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 2, 2, 0, 8, 0, 8, 0, 2}, //
-    {2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2}, //
-    {2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2}, //
-    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2}, //
-    {2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 0, 0, 2, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 2, 2, 2, 2, 2, 0, 0, 2, 0, 8, 0, 2}, //
-    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 2, 0, 8, 0, 8, 0, 8, 0, 2}, //
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, //
-    {2, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 2, 0, 8, 0, 8, 0, 8, 0, 2}, //
-    {2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2}, //
-    {2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}  //
-};

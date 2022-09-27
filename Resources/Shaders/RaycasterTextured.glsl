@@ -5,7 +5,7 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
 layout(r8i,     location = 1, binding = 1) uniform iimage2D worldMap;
 layout(rgba8,   location = 2, binding = 2) uniform image2D textures;
-
+layout(rgba32f, location = 3, binding = 3) uniform image1D depthBuffer;
 
 struct Player {
     vec2 position;
@@ -28,10 +28,10 @@ uniform Screen screen;
 // Code taken from https://lodev.org/cgtutor/raycasting.html and adopted.
 void main()
 {
-    float x = float(gl_GlobalInvocationID.x);
+    int x = int(gl_GlobalInvocationID.x);
 
     // Calculate ray position and direction
-    float cameraX = 2 * x / screen.width - 1; // x-coordinate in camera space
+    float cameraX = 2.0f * x / screen.width - 1; // x-coordinate in camera space
     vec2 rayDir = vec2(player.direction.x + camera.plane.x * cameraX, player.direction.y + camera.plane.y * cameraX);
 
     // Which box of the map we're in
@@ -113,6 +113,9 @@ void main()
         perpWallDist = (sideDist.x - deltaDist.x);
     else
         perpWallDist = (sideDist.y - deltaDist.y);
+
+    // Update depth buffer
+    imageStore(depthBuffer, x, vec4(perpWallDist));
 
     // Calculate height of line to draw on screen
     int lineHeight = int(screen.height / perpWallDist);
