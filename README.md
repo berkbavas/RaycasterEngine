@@ -11,4 +11,6 @@ Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/
 ![](Screenshot_00.png)
 
 ## Build
-Simply open `RaycasterEngine.pro` with `Qt Creator` and build it with kit `Qt 6.3.0 MSVC2019 64bit` and run. Other compilers should also work.
+Clone the repo `git clone --recurse-submodules https://github.com/berkbavas/RaycasterEngine.git`.
+
+Then simply open `RaycasterEngine.pro` with `Qt Creator` and build it with kit `Qt 6.3.0 MSVC2019 64bit` and run. Other compilers should also work.
