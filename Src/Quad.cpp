@@ -1,6 +1,6 @@
 #include "Quad.h"
 
-Quad::Quad()
+RaycasterEngine::Quad::Quad()
     : mVAO(0)
     , mVBO(0)
 {
@@ -13,27 +13,28 @@ Quad::Quad()
     glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
 
-Quad::~Quad()
+RaycasterEngine::Quad::~Quad()
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
 }
 
-void Quad::render()
+void RaycasterEngine::Quad::Render()
 {
     glBindVertexArray(mVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 
-const float Quad::VERTICES[24] = {-1.0f, 1.0f,  0.0f, 1.0f, //
+const float RaycasterEngine::Quad::VERTICES[24] = { 
+                                  -1.0f, 1.0f,  0.0f, 1.0f, //
                                   -1.0f, -1.0f, 0.0f, 0.0f, //
                                   1.0f,  -1.0f, 1.0f, 0.0f, //
                                   -1.0f, 1.0f,  0.0f, 1.0f, //
                                   1.0f,  -1.0f, 1.0f, 0.0f, //
-                                  1.0f,  1.0f,  1.0f, 1.0f};
+                                  1.0f,  1.0f,  1.0f, 1.0f };

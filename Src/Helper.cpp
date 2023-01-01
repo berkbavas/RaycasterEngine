@@ -4,40 +4,41 @@
 #include <QFile>
 #include <QtMath>
 
-Helper::Helper() {}
+RaycasterEngine::Helper::Helper() {}
 
-QByteArray Helper::getBytes(QString path)
+QByteArray RaycasterEngine::Helper::GetBytes(QString path)
 {
     QFile file(path);
     if (file.open(QFile::ReadOnly))
     {
         return file.readAll();
-    } else
+    }
+    else
     {
         qWarning() << QString("Could not open '%1'").arg(path);
         return QByteArray();
     }
 }
 
-QQuaternion Helper::rotateX(float angleRadians)
+QQuaternion RaycasterEngine::Helper::RotateX(float angleRadians)
 {
     return QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), qRadiansToDegrees(angleRadians));
 }
 
-QQuaternion Helper::rotateY(float angleRadians)
+QQuaternion RaycasterEngine::Helper::RotateY(float angleRadians)
 {
     return QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), qRadiansToDegrees(angleRadians));
 }
 
-QQuaternion Helper::rotateZ(float angleRadians)
+QQuaternion RaycasterEngine::Helper::RotateZ(float angleRadians)
 {
     return QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), qRadiansToDegrees(angleRadians));
 }
 
-QQuaternion Helper::invert(const QQuaternion &rotation)
+QQuaternion RaycasterEngine::Helper::Invert(const QQuaternion& rotation)
 {
     float yaw, pitch, roll;
-    getEulerDegrees(rotation, yaw, pitch, roll);
+    GetEulerDegrees(rotation, yaw, pitch, roll);
 
     QQuaternion r = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw);
     r = r * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), -pitch);
@@ -45,7 +46,7 @@ QQuaternion Helper::invert(const QQuaternion &rotation)
     return r;
 }
 
-float Helper::angleBetween(const QVector3D &v1, const QVector3D &v2, const QVector3D &left)
+float RaycasterEngine::Helper::AngleBetween(const QVector3D& v1, const QVector3D& v2, const QVector3D& left)
 {
     QVector3D u1 = v1.normalized();
     QVector3D u2 = v2.normalized();
@@ -55,12 +56,12 @@ float Helper::angleBetween(const QVector3D &v1, const QVector3D &v2, const QVect
     if (qFuzzyCompare(dot, 1.0f))
     {
         return 0.0f;
-
-    } else if (qFuzzyCompare(dot, -1.0f))
+    }
+    else if (qFuzzyCompare(dot, -1.0f))
     {
         return 180.0f;
-
-    } else
+    }
+    else
     {
         float angle = qRadiansToDegrees(acos(dot));
         QVector3D u1xu2 = QVector3D::crossProduct(u1, u2);
@@ -72,7 +73,7 @@ float Helper::angleBetween(const QVector3D &v1, const QVector3D &v2, const QVect
     }
 }
 
-void Helper::getEulerDegrees(const QQuaternion &rotation, float &yaw, float &pitch, float &roll)
+void RaycasterEngine::Helper::GetEulerDegrees(const QQuaternion& rotation, float& yaw, float& pitch, float& roll)
 {
     QVector3D zAxis = rotation * QVector3D(0, 0, -1);
     float x = zAxis.x();
@@ -84,36 +85,36 @@ void Helper::getEulerDegrees(const QQuaternion &rotation, float &yaw, float &pit
     QVector3D xAxis = rotation * QVector3D(1, 0, 0);
 
     QVector3D xAxisProj = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-                          QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-                          QVector3D(1, 0, 0);
+        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+        QVector3D(1, 0, 0);
 
     QVector3D left = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-                     QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-                     QVector3D(0, 0, -1);
+        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+        QVector3D(0, 0, -1);
 
-    roll = Helper::angleBetween(xAxis, xAxisProj, left);
+    roll = RaycasterEngine::Helper::AngleBetween(xAxis, xAxisProj, left);
 
     if (yaw < 0.0f)
         yaw += 360.0f;
 }
 
-QVector3D Helper::getEulerDegrees(const QQuaternion &rotation)
+QVector3D RaycasterEngine::Helper::GetEulerDegrees(const QQuaternion& rotation)
 {
     float yaw, pitch, roll;
 
-    getEulerDegrees(rotation, yaw, pitch, roll);
+    GetEulerDegrees(rotation, yaw, pitch, roll);
 
     return QVector3D(yaw, pitch, roll);
 }
 
-QQuaternion Helper::constructFromEulerDegrees(float yaw, float pitch, float roll)
+QQuaternion RaycasterEngine::Helper::ConstructFromEulerDegrees(float yaw, float pitch, float roll)
 {
     return QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-           QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-           QQuaternion::fromAxisAndAngle(QVector3D(0, 0, -1), roll);
+        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+        QQuaternion::fromAxisAndAngle(QVector3D(0, 0, -1), roll);
 }
 
-QVector2D Helper::rotate(const QVector2D &subject, float angle)
+QVector2D RaycasterEngine::Helper::Rotate(const QVector2D& subject, float angle)
 {
     auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), angle);
     return QVector2D(rotation * QVector3D(subject, 0));

@@ -3,16 +3,16 @@
 #include "Helper.h"
 #include "Window.h"
 
-Controller::Controller(QObject *parent)
+RaycasterEngine::Controller::Controller(QObject* parent)
     : QObject(parent)
     , mIfps(0.0f)
     , mImGuiWantsMouseCapture(false)
     , mImGuiWantsKeyboardCapture(false)
 {}
 
-Controller::~Controller() {}
+RaycasterEngine::Controller::~Controller() {}
 
-void Controller::init()
+void RaycasterEngine::Controller::Init()
 {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
@@ -23,55 +23,55 @@ void Controller::init()
     mTextures.insert(TextureName::All, new Texture(":/Resources/Textures/all.png"));
 
     mScreenShader = new Shader("Screen Shader");
-    mScreenShader->addPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Screen.vert");
-    mScreenShader->addPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Screen.frag");
-    mScreenShader->addUniform("screenTexture");
-    mScreenShader->addAttribute("position");
-    mScreenShader->addAttribute("textureCoords");
-    mScreenShader->init();
+    mScreenShader->AddPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Screen.vert");
+    mScreenShader->AddPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Screen.frag");
+    mScreenShader->AddUniform("screenTexture");
+    mScreenShader->AddAttribute("position");
+    mScreenShader->AddAttribute("textureCoords");
+    mScreenShader->Init();
 
     mRaycasterFlatShader = new Shader("Raycaster Flat Compute Shader");
-    mRaycasterFlatShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFlat.glsl");
-    mRaycasterFlatShader->addUniform("player.position");
-    mRaycasterFlatShader->addUniform("player.direction");
-    mRaycasterFlatShader->addUniform("camera.plane");
-    mRaycasterFlatShader->addUniform("screen.width");
-    mRaycasterFlatShader->addUniform("screen.height");
-    mRaycasterFlatShader->init();
+    mRaycasterFlatShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFlat.glsl");
+    mRaycasterFlatShader->AddUniform("player.position");
+    mRaycasterFlatShader->AddUniform("player.direction");
+    mRaycasterFlatShader->AddUniform("camera.plane");
+    mRaycasterFlatShader->AddUniform("screen.width");
+    mRaycasterFlatShader->AddUniform("screen.height");
+    mRaycasterFlatShader->Init();
 
     mRaycasterTexturedShader = new Shader("Raycaster Textured Compute Shader");
-    mRaycasterTexturedShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterTextured.glsl");
-    mRaycasterTexturedShader->addUniform("player.position");
-    mRaycasterTexturedShader->addUniform("player.direction");
-    mRaycasterTexturedShader->addUniform("camera.plane");
-    mRaycasterTexturedShader->addUniform("screen.width");
-    mRaycasterTexturedShader->addUniform("screen.height");
-    mRaycasterTexturedShader->init();
+    mRaycasterTexturedShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterTextured.glsl");
+    mRaycasterTexturedShader->AddUniform("player.position");
+    mRaycasterTexturedShader->AddUniform("player.direction");
+    mRaycasterTexturedShader->AddUniform("camera.plane");
+    mRaycasterTexturedShader->AddUniform("screen.width");
+    mRaycasterTexturedShader->AddUniform("screen.height");
+    mRaycasterTexturedShader->Init();
 
     mRaycasterFloorShader = new Shader("Raycaster Floor Compute Shader");
-    mRaycasterFloorShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFloor.glsl");
-    mRaycasterFloorShader->addUniform("player.position");
-    mRaycasterFloorShader->addUniform("player.direction");
-    mRaycasterFloorShader->addUniform("camera.plane");
-    mRaycasterFloorShader->addUniform("screen.width");
-    mRaycasterFloorShader->addUniform("screen.height");
-    mRaycasterFloorShader->init();
+    mRaycasterFloorShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFloor.glsl");
+    mRaycasterFloorShader->AddUniform("player.position");
+    mRaycasterFloorShader->AddUniform("player.direction");
+    mRaycasterFloorShader->AddUniform("camera.plane");
+    mRaycasterFloorShader->AddUniform("screen.width");
+    mRaycasterFloorShader->AddUniform("screen.height");
+    mRaycasterFloorShader->Init();
 
     mRaycasterSpritesShader = new Shader("Raycaster Sprites Compute Shader");
-    mRaycasterSpritesShader->addPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterSprites.glsl");
-    mRaycasterSpritesShader->addUniform("screen.width");
-    mRaycasterSpritesShader->addUniform("screen.height");
-    mRaycasterSpritesShader->addUniform("sprite.width");
-    mRaycasterSpritesShader->addUniform("sprite.height");
-    mRaycasterSpritesShader->addUniform("sprite.screenX");
-    mRaycasterSpritesShader->addUniform("sprite.textureIndex");
-    mRaycasterSpritesShader->addUniform("draw.startX");
-    mRaycasterSpritesShader->addUniform("draw.endX");
-    mRaycasterSpritesShader->addUniform("draw.startY");
-    mRaycasterSpritesShader->addUniform("draw.endY");
-    mRaycasterSpritesShader->addUniform("draw.transformX");
-    mRaycasterSpritesShader->addUniform("draw.transformY");
-    mRaycasterSpritesShader->init();
+    mRaycasterSpritesShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterSprites.glsl");
+    mRaycasterSpritesShader->AddUniform("screen.width");
+    mRaycasterSpritesShader->AddUniform("screen.height");
+    mRaycasterSpritesShader->AddUniform("sprite.width");
+    mRaycasterSpritesShader->AddUniform("sprite.height");
+    mRaycasterSpritesShader->AddUniform("sprite.screenX");
+    mRaycasterSpritesShader->AddUniform("sprite.textureIndex");
+    mRaycasterSpritesShader->AddUniform("draw.startX");
+    mRaycasterSpritesShader->AddUniform("draw.endX");
+    mRaycasterSpritesShader->AddUniform("draw.startY");
+    mRaycasterSpritesShader->AddUniform("draw.endY");
+    mRaycasterSpritesShader->AddUniform("draw.transformX");
+    mRaycasterSpritesShader->AddUniform("draw.transformY");
+    mRaycasterSpritesShader->Init();
 
     glGenTextures(1, &mRaycasterOutputImage);
     glActiveTexture(GL_TEXTURE0);
@@ -113,11 +113,11 @@ void Controller::init()
     mSpriteIndices.resize(mSprites.size());
 }
 
-void Controller::render(float ifps)
+void RaycasterEngine::Controller::Render(float ifps)
 {
     mIfps = ifps;
 
-    update();
+    Update();
 
     // Raycaster stuff
 
@@ -133,32 +133,32 @@ void Controller::render(float ifps)
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Floor and Ceiling
-    mRaycasterFloorShader->bind();
-    mRaycasterFloorShader->setUniformValue("player.position", mPlayer.position);
-    mRaycasterFloorShader->setUniformValue("player.direction", mPlayer.direction);
-    mRaycasterFloorShader->setUniformValue("camera.plane", mCamera.plane);
-    mRaycasterFloorShader->setUniformValue("screen.width", SCREEN_WIDTH);
-    mRaycasterFloorShader->setUniformValue("screen.height", SCREEN_HEIGHT);
+    mRaycasterFloorShader->Bind();
+    mRaycasterFloorShader->SetUniformValue("player.position", mPlayer.position);
+    mRaycasterFloorShader->SetUniformValue("player.direction", mPlayer.direction);
+    mRaycasterFloorShader->SetUniformValue("camera.plane", mCamera.plane);
+    mRaycasterFloorShader->SetUniformValue("screen.width", SCREEN_WIDTH);
+    mRaycasterFloorShader->SetUniformValue("screen.height", SCREEN_HEIGHT);
     glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(1, mTextures.value(TextureName::All)->ID(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
     glDispatchCompute(1, SCREEN_HEIGHT / 2 - 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    mRaycasterFloorShader->release();
+    mRaycasterFloorShader->Release();
 
     // Textured Raycaster Walls
-    mRaycasterTexturedShader->bind();
-    mRaycasterTexturedShader->setUniformValue("player.position", mPlayer.position);
-    mRaycasterTexturedShader->setUniformValue("player.direction", mPlayer.direction);
-    mRaycasterTexturedShader->setUniformValue("camera.plane", mCamera.plane);
-    mRaycasterTexturedShader->setUniformValue("screen.width", SCREEN_WIDTH);
-    mRaycasterTexturedShader->setUniformValue("screen.height", SCREEN_HEIGHT);
+    mRaycasterTexturedShader->Bind();
+    mRaycasterTexturedShader->SetUniformValue("player.position", mPlayer.position);
+    mRaycasterTexturedShader->SetUniformValue("player.direction", mPlayer.direction);
+    mRaycasterTexturedShader->SetUniformValue("camera.plane", mCamera.plane);
+    mRaycasterTexturedShader->SetUniformValue("screen.width", SCREEN_WIDTH);
+    mRaycasterTexturedShader->SetUniformValue("screen.height", SCREEN_HEIGHT);
     glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glBindImageTexture(1, mRaycasterWorldMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8I);
-    glBindImageTexture(2, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+    glBindImageTexture(2, mTextures.value(TextureName::All)->ID(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
     glBindImageTexture(3, mRaycasterDepthBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glDispatchCompute(SCREEN_WIDTH, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    mRaycasterTexturedShader->release();
+    mRaycasterTexturedShader->Release();
 
     // Sprites
 
@@ -169,7 +169,6 @@ void Controller::render(float ifps)
     }
 
     // Sort sprites
-
     std::vector<std::pair<double, int>> sortedSprites(mSprites.size());
     for (int i = 0; i < sortedSprites.size(); i++)
     {
@@ -231,37 +230,37 @@ void Controller::render(float ifps)
         if (drawEndX >= SCREEN_WIDTH)
             drawEndX = SCREEN_WIDTH - 1;
 
-        mRaycasterSpritesShader->bind();
+        mRaycasterSpritesShader->Bind();
 
-        mRaycasterSpritesShader->setUniformValue("screen.width", SCREEN_WIDTH);
-        mRaycasterSpritesShader->setUniformValue("screen.height", SCREEN_HEIGHT);
-        mRaycasterSpritesShader->setUniformValue("sprite.width", spriteWidth);
-        mRaycasterSpritesShader->setUniformValue("sprite.height", spriteHeight);
-        mRaycasterSpritesShader->setUniformValue("sprite.screenX", spriteScreenX);
-        mRaycasterSpritesShader->setUniformValue("sprite.textureIndex", mSprites[j].texture);
-        mRaycasterSpritesShader->setUniformValue("draw.startX", drawStartX);
-        mRaycasterSpritesShader->setUniformValue("draw.endX", drawEndX);
-        mRaycasterSpritesShader->setUniformValue("draw.startY", drawStartY);
-        mRaycasterSpritesShader->setUniformValue("draw.endY", drawEndY);
-        mRaycasterSpritesShader->setUniformValue("draw.transformX", transformX);
-        mRaycasterSpritesShader->setUniformValue("draw.transformY", transformY);
+        mRaycasterSpritesShader->SetUniformValue("screen.width", SCREEN_WIDTH);
+        mRaycasterSpritesShader->SetUniformValue("screen.height", SCREEN_HEIGHT);
+        mRaycasterSpritesShader->SetUniformValue("sprite.width", spriteWidth);
+        mRaycasterSpritesShader->SetUniformValue("sprite.height", spriteHeight);
+        mRaycasterSpritesShader->SetUniformValue("sprite.screenX", spriteScreenX);
+        mRaycasterSpritesShader->SetUniformValue("sprite.textureIndex", mSprites[j].texture);
+        mRaycasterSpritesShader->SetUniformValue("draw.startX", drawStartX);
+        mRaycasterSpritesShader->SetUniformValue("draw.endX", drawEndX);
+        mRaycasterSpritesShader->SetUniformValue("draw.startY", drawStartY);
+        mRaycasterSpritesShader->SetUniformValue("draw.endY", drawEndY);
+        mRaycasterSpritesShader->SetUniformValue("draw.transformX", transformX);
+        mRaycasterSpritesShader->SetUniformValue("draw.transformY", transformY);
 
         glBindImageTexture(0, mRaycasterOutputImage, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, mTextures.value(TextureName::All)->id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+        glBindImageTexture(1, mTextures.value(TextureName::All)->ID(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
         glBindImageTexture(2, mRaycasterDepthBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         glDispatchCompute(drawEndX - drawStartX, 1, 1);
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
-        mRaycasterSpritesShader->release();
+        mRaycasterSpritesShader->Release();
     }
 
     // Render to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    mScreenShader->bind();
-    mScreenShader->setSampler("screenTexture", 0, mRaycasterOutputImage);
-    mQuad->render();
-    mScreenShader->release();
+    mScreenShader->Bind();
+    mScreenShader->SetSampler("screenTexture", 0, mRaycasterOutputImage);
+    mQuad->Render();
+    mScreenShader->Release();
 
     QtImGui::newFrame();
     //ImGui::ShowDemoWindow();
@@ -276,12 +275,12 @@ void Controller::render(float ifps)
     QtImGui::render();
 }
 
-void Controller::setWindow(Window *newWindow)
+void RaycasterEngine::Controller::SetWindow(Window* newWindow)
 {
     mWindow = newWindow;
 }
 
-void Controller::update()
+void RaycasterEngine::Controller::Update()
 {
     auto pressedKeys = mPressedKeys.keys();
     for (const auto key : pressedKeys)
@@ -301,14 +300,14 @@ void Controller::update()
 
         if (key == Qt::Key_A)
         {
-            mPlayer.direction = Helper::rotate(mPlayer.direction, mIfps * mPlayer.angularSpeed);
-            mCamera.plane = Helper::rotate(mCamera.plane, mIfps * mPlayer.angularSpeed);
+            mPlayer.direction = Helper::Rotate(mPlayer.direction, mIfps * mPlayer.angularSpeed);
+            mCamera.plane = Helper::Rotate(mCamera.plane, mIfps * mPlayer.angularSpeed);
         }
 
         if (key == Qt::Key_D)
         {
-            mPlayer.direction = Helper::rotate(mPlayer.direction, -mIfps * mPlayer.angularSpeed);
-            mCamera.plane = Helper::rotate(mCamera.plane, -mIfps * mPlayer.angularSpeed);
+            mPlayer.direction = Helper::Rotate(mPlayer.direction, -mIfps * mPlayer.angularSpeed);
+            mCamera.plane = Helper::Rotate(mCamera.plane, -mIfps * mPlayer.angularSpeed);
         }
     }
 
@@ -316,13 +315,11 @@ void Controller::update()
     mPlayer.position[1] = qMax(1.0f, qMin(mPlayer.position[1], 22.0f));
 }
 
-void Controller::wheelMoved(QWheelEvent *event)
+void RaycasterEngine::Controller::WheelMoved(QWheelEvent* event)
 {
-    if (mImGuiWantsMouseCapture)
-        return;
 }
 
-void Controller::mousePressed(QMouseEvent *event)
+void RaycasterEngine::Controller::MousePressed(QMouseEvent* event)
 {
     if (mImGuiWantsMouseCapture)
         return;
@@ -330,7 +327,7 @@ void Controller::mousePressed(QMouseEvent *event)
     mPressedButton = event->button();
 }
 
-void Controller::mouseReleased(QMouseEvent *event)
+void RaycasterEngine::Controller::MouseReleased(QMouseEvent* event)
 {
     if (mImGuiWantsMouseCapture)
         return;
@@ -338,31 +335,28 @@ void Controller::mouseReleased(QMouseEvent *event)
     mPressedButton = Qt::NoButton;
 }
 
-void Controller::mouseMoved(QMouseEvent *event)
+void RaycasterEngine::Controller::MouseMoved(QMouseEvent* event)
 {
     if (mImGuiWantsMouseCapture)
         return;
 }
 
-void Controller::keyPressed(QKeyEvent *event)
+void RaycasterEngine::Controller::KeyPressed(QKeyEvent* event)
 {
     if (mImGuiWantsKeyboardCapture)
         return;
 
-    mPressedKeys.insert((Qt::Key) event->key(), true);
+    mPressedKeys.insert((Qt::Key)event->key(), true);
 }
 
-void Controller::keyReleased(QKeyEvent *event)
+void RaycasterEngine::Controller::KeyReleased(QKeyEvent* event)
 {
     if (mImGuiWantsKeyboardCapture)
         return;
 
-    mPressedKeys.insert((Qt::Key) event->key(), false);
+    mPressedKeys.insert((Qt::Key)event->key(), false);
 }
 
-void Controller::resize(int w, int h)
+void RaycasterEngine::Controller::Resize(int w, int h)
 {
-    mWindow->makeCurrent();
-
-    mWindow->doneCurrent();
 }

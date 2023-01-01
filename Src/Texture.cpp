@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-Texture::Texture(const QString &path)
+RaycasterEngine::Texture::Texture(const QString& path)
     : mPath(path)
 {
     initializeOpenGLFunctions();
@@ -22,17 +22,17 @@ Texture::Texture(const QString &path)
     qInfo() << "Texture" << path << "is loaded and created. ID is" << mID << "Size is" << image.width() << "x" << image.height();
 }
 
-Texture::~Texture()
+RaycasterEngine::Texture::~Texture()
 {
     glDeleteTextures(1, &mID);
 }
 
-unsigned int Texture::id() const
+unsigned int RaycasterEngine::Texture::ID() const
 {
     return mID;
 }
 
-const QString &Texture::path() const
+const QString& RaycasterEngine::Texture::GetPath() const
 {
     return mPath;
 }
