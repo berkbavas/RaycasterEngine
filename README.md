@@ -16,7 +16,7 @@ Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/
 6) Enter the folder `cd Build`.
 7) Run CMake `cmake ..`.
 8) Open `RaycasterEngine.sln` with `Visual Studio 2019`.
-9) Build & Run.
+9) Build & Run with `Release` config.
 
 ## Screenshot
 ![Screenshot_00](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
