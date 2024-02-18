@@ -16,6 +16,7 @@ set(INCLUDE_DIR Dependencies/qtimgui/include/qtimgui
 				Dependencies/qtimgui/include/implot)
 				
 set(LIBS_DIR Dependencies/qtimgui/lib)
+
 set(LIBS imgui implot qt_imgui_widgets)
 
 find_package(Qt5 COMPONENTS Core Widgets OpenGL Gui REQUIRED)
