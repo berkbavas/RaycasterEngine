@@ -8,15 +8,16 @@ Textures belong to Wolfenstein 3D game.
 Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/cgtutor/raycasting.html) and adopted.
 
 ## Build
-1) Install `CMake 3.25.1`.
+1) Install `CMake 3.25.1` or above.
 2) Install `Visual Studio 2019 and MSVC C++ Compiler`.
-3) Install `Qt 5.15.2 MSVC2019 64bit` kit.
-4) Clone the repo `git clone https://github.com/berkbavas/RaycasterEngine.git`.
-5) Create a folder `mkdir Build`.
-6) Enter the folder `cd Build`.
-7) Run CMake `cmake ..`.
-8) Open `RaycasterEngine.sln` with `Visual Studio 2019`.
-9) Build & Run with `Release` config.
+3) Install `Qt 5.x.y MSVC2019 64bit` kit.
+4) Set `Qt5_DIR` as `C:\Qt\5.x.y\msvc2019_64`
+5) Clone the repo `git clone https://github.com/berkbavas/RaycasterEngine.git`.
+6) Create a folder `mkdir Build`.
+7) Enter the folder `cd Build`.
+8) Run CMake `cmake ..`.
+9) Open `RaycasterEngine.sln` with `Visual Studio 2019`.
+10) Build & Run with `Release` config.
 
 ## Screenshot
 ![Screenshot_00](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
