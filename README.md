@@ -5,7 +5,7 @@ This raycaster engine is implemented using compute shaders so it does not have t
 
 Textures belong to `Wolfenstein 3D`.
 
-Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/cgtutor/raycasting.html) and adopted.
+Raycaster codes are taken from [Lode Vandevenne](https://lodev.org/)'s  [tutorials](https://lodev.org/cgtutor/raycasting.html) and adopted.
 
 ## Build
 1) Install `CMake 3.25.1` or above.
@@ -21,3 +21,11 @@ Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/
 
 ## Screenshot
 ![Screenshot_00](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
+
+## Keywords
+`2D Raycaster`,
+`2D Rendering`,
+`Compute Shaders`,
+`OpenGL`,
+`GLSL`,
+`Wolfenstein 3D`.
