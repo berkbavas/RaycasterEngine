@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/Shaders/Screen.frag</file>
+        <file>Resources/Shaders/Screen.vert</file>
+        <file>Resources/Shaders/RaycasterFlat.glsl</file>
+        <file>Resources/Shaders/RaycasterFloor.glsl</file>
+        <file>Resources/Shaders/RaycasterTextured.glsl</file>
+        <file>Resources/Shaders/RaycasterSprites.glsl</file>
+        <file>Resources/Textures/barrel.png</file>
+        <file>Resources/Textures/bluestone.png</file>
+        <file>Resources/Textures/colorstone.png</file>
+        <file>Resources/Textures/eagle.png</file>
+        <file>Resources/Textures/greenlight.png</file>
+        <file>Resources/Textures/greystone.png</file>
+        <file>Resources/Textures/mossy.png</file>
+        <file>Resources/Textures/pillar.png</file>
+        <file>Resources/Textures/purplestone.png</file>
+        <file>Resources/Textures/redbrick.png</file>
+        <file>Resources/Textures/wood.png</file>
+        <file>Resources/Textures/all.png</file>
+    </qresource>
+</RCC>

@@ -3,7 +3,7 @@ Traditional 2D raycaster engines run on CPU so they have a bottleneck on loading
 
 This raycaster engine is implemented using compute shaders so it does not have this bottleneck as it runs on GPU.
 
-Textures belong to Wolfenstein 3D game.
+Textures belong to `Wolfenstein 3D`.
 
 Raycaster codes are taken from Lode Vandevenne's  [tutorials](https://lodev.org/cgtutor/raycasting.html) and adopted.
 
