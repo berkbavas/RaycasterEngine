@@ -3,18 +3,18 @@
 
 #include <QDebug>
 
-Shader::Shader(const QString &name)
+RaycasterEngine::Shader::Shader(const QString& name)
     : mName(name)
     , mSuccess(false)
 {}
 
-Shader::~Shader()
+RaycasterEngine::Shader::~Shader()
 {
     if (mSuccess)
         mProgram->deleteLater();
 }
 
-bool Shader::init()
+bool RaycasterEngine::Shader::Init()
 {
     initializeOpenGLFunctions();
 
@@ -26,9 +26,9 @@ bool Shader::init()
 
     for (auto type : qAsConst(types))
     {
-        if (!mProgram->addShaderFromSourceCode(type, Helper::getBytes(mPaths[type])))
+        if (!mProgram->addShaderFromSourceCode(type, Helper::GetBytes(mPaths[type])))
         {
-            qWarning() << Q_FUNC_INFO << "Could not load" << getShaderTypeString(type);
+            qWarning() << Q_FUNC_INFO << "Could not load" << GetShaderTypeString(type);
             return false;
         }
     }
@@ -45,13 +45,13 @@ bool Shader::init()
         return false;
     }
 
-    for (const auto &uniform : qAsConst(mUniforms))
+    for (const auto& uniform : qAsConst(mUniforms))
     {
         mLocations.insert(uniform, mProgram->uniformLocation(uniform));
     }
 
     auto uniformArrays = mUniformArrays.keys();
-    for (const auto &uniformArray : qAsConst(uniformArrays))
+    for (const auto& uniformArray : qAsConst(uniformArrays))
     {
         int size = mUniformArrays[uniformArray];
 
@@ -76,99 +76,99 @@ bool Shader::init()
     return true;
 }
 
-bool Shader::bind()
+bool RaycasterEngine::Shader::Bind()
 {
     return mProgram->bind();
 }
 
-void Shader::release()
+void RaycasterEngine::Shader::Release()
 {
     mProgram->release();
 }
 
-void Shader::addPath(QOpenGLShader::ShaderTypeBit type, const QString &path)
+void RaycasterEngine::Shader::AddPath(QOpenGLShader::ShaderTypeBit type, const QString& path)
 {
     mPaths.insert(type, path);
 }
 
-void Shader::addUniform(const QString &uniform)
+void RaycasterEngine::Shader::AddUniform(const QString& uniform)
 {
     mUniforms << uniform;
 }
 
-void Shader::addUniforms(const QStringList &uniforms)
+void RaycasterEngine::Shader::AddUniforms(const QStringList& uniforms)
 {
     mUniforms << uniforms;
 }
 
-void Shader::setUniformArray(const QString &uniform, int size)
+void RaycasterEngine::Shader::SetUniformArray(const QString& uniform, int size)
 {
     mUniformArrays.insert(uniform, size);
 }
 
-void Shader::addAttribute(const QString &attribute)
+void RaycasterEngine::Shader::AddAttribute(const QString& attribute)
 {
     mAttributes << attribute;
 }
 
-void Shader::addAttributes(const QStringList &attributes)
+void RaycasterEngine::Shader::AddAttributes(const QStringList& attributes)
 {
     mAttributes << attributes;
 }
 
-void Shader::setUniformValue(const QString &name, int value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, int value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, unsigned int value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, unsigned int value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, float value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, float value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, const QVector2D &value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, const QVector2D& value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, const QVector3D &value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, const QVector3D& value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, const QVector4D &value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, const QVector4D& value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, const QMatrix4x4 &value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, const QMatrix4x4& value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValue(const QString &name, const QMatrix3x3 &value)
+void RaycasterEngine::Shader::SetUniformValue(const QString& name, const QMatrix3x3& value)
 {
     mProgram->setUniformValue(mLocations[name], value);
 }
 
-void Shader::setUniformValueArray(const QString &name, const QVector<QVector3D> &values)
+void RaycasterEngine::Shader::SetUniformValueArray(const QString& name, const QVector<QVector3D>& values)
 {
     mProgram->setUniformValueArray(mLocations[name], values.constData(), values.size());
 }
 
-void Shader::setSampler(const QString &name, unsigned int unit, unsigned int id, GLenum target)
+void RaycasterEngine::Shader::SetSampler(const QString& name, unsigned int unit, unsigned int id, GLenum target)
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(target, id);
-    setUniformValue(name, unit);
+    SetUniformValue(name, unit);
 }
 
-QString Shader::getShaderTypeString(QOpenGLShader::ShaderTypeBit type)
+QString RaycasterEngine::Shader::GetShaderTypeString(QOpenGLShader::ShaderTypeBit type)
 {
     switch (type)
     {
