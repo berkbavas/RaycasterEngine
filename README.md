@@ -1,7 +1,6 @@
 # 2D Raycaster Engine
-Traditional 2D raycaster engines run on CPU so they have a bottleneck on loading screen texture from CPU to GPU for each frame.
-
-This raycaster engine is implemented using compute shaders so it does not have this bottleneck as it runs on GPU.
+Traditional 2D raycaster engines run on the CPU, so they have a bottleneck when loading screen textures from the CPU to the GPU for each frame.
+This raycaster engine is implemented using compute shaders, allowing it to avoid this bottleneck since it runs on the GPU.
 
 Textures belong to `Wolfenstein 3D`.
 
@@ -17,7 +16,7 @@ Raycaster codes are taken from [Lode Vandevenne](https://lodev.org/)'s  [tutoria
 7) Enter the folder `cd Build`.
 8) Run CMake `cmake ..`.
 9) Open `RaycasterEngine.sln` with `Visual Studio 2022`.
-10) Build & Run with `Release` config.
+10) Build with `Release` config.
 
 ## Screenshot
 ![Screenshot_00](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
