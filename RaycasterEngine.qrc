@@ -1,22 +1,22 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/shaders/Screen.frag</file>
-        <file>resources/shaders/Screen.vert</file>
-        <file>resources/shaders/RaycasterFlat.glsl</file>
-        <file>resources/shaders/RaycasterFloor.glsl</file>
-        <file>resources/shaders/RaycasterTextured.glsl</file>
-        <file>resources/shaders/RaycasterSprites.glsl</file>
-        <file>resources/textures/barrel.png</file>
-        <file>resources/textures/bluestone.png</file>
-        <file>resources/textures/colorstone.png</file>
-        <file>resources/textures/eagle.png</file>
-        <file>resources/textures/greenlight.png</file>
-        <file>resources/textures/greystone.png</file>
-        <file>resources/textures/mossy.png</file>
-        <file>resources/textures/pillar.png</file>
-        <file>resources/textures/purplestone.png</file>
-        <file>resources/textures/redbrick.png</file>
-        <file>resources/textures/wood.png</file>
-        <file>resources/textures/all.png</file>
+        <file>resources/Shaders/Screen.frag</file>
+        <file>resources/Shaders/Screen.vert</file>
+        <file>resources/Shaders/RaycasterFlat.glsl</file>
+        <file>resources/Shaders/RaycasterFloor.glsl</file>
+        <file>resources/Shaders/RaycasterTextured.glsl</file>
+        <file>resources/Shaders/RaycasterSprites.glsl</file>
+        <file>resources/Textures/barrel.png</file>
+        <file>resources/Textures/bluestone.png</file>
+        <file>resources/Textures/colorstone.png</file>
+        <file>resources/Textures/eagle.png</file>
+        <file>resources/Textures/greenlight.png</file>
+        <file>resources/Textures/greystone.png</file>
+        <file>resources/Textures/mossy.png</file>
+        <file>resources/Textures/pillar.png</file>
+        <file>resources/Textures/purplestone.png</file>
+        <file>resources/Textures/redbrick.png</file>
+        <file>resources/Textures/wood.png</file>
+        <file>resources/Textures/all.png</file>
     </qresource>
 </RCC>
