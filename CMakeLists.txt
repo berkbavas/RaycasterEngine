@@ -11,9 +11,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(INCLUDE_DIR libs/qtimgui/include)
+set(INCLUDE_DIR Libs/qtimgui/include)
 
-set(LIBS_DIR libs/qtimgui/lib)
+set(LIBS_DIR Libs/qtimgui/lib)
 
 set(LIBS imgui implot qt_imgui_widgets)
 
@@ -21,7 +21,7 @@ find_package(Qt5 COMPONENTS Core Widgets OpenGL Gui REQUIRED)
 
 add_compile_options(/bigobj)
 
-file(GLOB SOURCES src/*.cpp src/*.h RaycasterEngine.qrc)
+file(GLOB SOURCES Source/*.cpp Source/*.h RaycasterEngine.qrc)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}" ${INCLUDE_DIR})
 
@@ -33,5 +33,4 @@ target_link_libraries(RaycasterEngine Qt5::Core Qt5::Widgets Qt5::OpenGL ${LIBS}
 
 add_custom_command(TARGET RaycasterEngine
     POST_BUILD COMMAND "$ENV{Qt5_DIR}/bin/windeployqt.exe"
-    "\"$(OutDir)$(TargetName)$(TargetExt)\""
-)
+    "\"$(OutDir)$(TargetName)$(TargetExt)\"")

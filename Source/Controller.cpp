@@ -20,18 +20,18 @@ void RaycasterEngine::Controller::Init()
     mQuad = new Quad;
 
     // Textures
-    mTextures.insert(TextureName::All, new Texture(":/resources/Textures/all.png"));
+    mTextures.insert(TextureName::All, new Texture(":/Resources/Textures/all.png"));
 
     mScreenShader = new Shader("Screen Shader");
-    mScreenShader->AddPath(QOpenGLShader::Vertex, ":/resources/Shaders/Screen.vert");
-    mScreenShader->AddPath(QOpenGLShader::Fragment, ":/resources/Shaders/Screen.frag");
+    mScreenShader->AddPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Screen.vert");
+    mScreenShader->AddPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Screen.frag");
     mScreenShader->AddUniform("screenTexture");
     mScreenShader->AddAttribute("position");
     mScreenShader->AddAttribute("textureCoords");
     mScreenShader->Init();
 
     mRaycasterFlatShader = new Shader("Raycaster Flat Compute Shader");
-    mRaycasterFlatShader->AddPath(QOpenGLShader::Compute, ":/resources/Shaders/RaycasterFlat.glsl");
+    mRaycasterFlatShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFlat.glsl");
     mRaycasterFlatShader->AddUniform("player.position");
     mRaycasterFlatShader->AddUniform("player.direction");
     mRaycasterFlatShader->AddUniform("camera.plane");
@@ -40,7 +40,7 @@ void RaycasterEngine::Controller::Init()
     mRaycasterFlatShader->Init();
 
     mRaycasterTexturedShader = new Shader("Raycaster Textured Compute Shader");
-    mRaycasterTexturedShader->AddPath(QOpenGLShader::Compute, ":/resources/Shaders/RaycasterTextured.glsl");
+    mRaycasterTexturedShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterTextured.glsl");
     mRaycasterTexturedShader->AddUniform("player.position");
     mRaycasterTexturedShader->AddUniform("player.direction");
     mRaycasterTexturedShader->AddUniform("camera.plane");
@@ -49,7 +49,7 @@ void RaycasterEngine::Controller::Init()
     mRaycasterTexturedShader->Init();
 
     mRaycasterFloorShader = new Shader("Raycaster Floor Compute Shader");
-    mRaycasterFloorShader->AddPath(QOpenGLShader::Compute, ":/resources/Shaders/RaycasterFloor.glsl");
+    mRaycasterFloorShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterFloor.glsl");
     mRaycasterFloorShader->AddUniform("player.position");
     mRaycasterFloorShader->AddUniform("player.direction");
     mRaycasterFloorShader->AddUniform("camera.plane");
@@ -58,7 +58,7 @@ void RaycasterEngine::Controller::Init()
     mRaycasterFloorShader->Init();
 
     mRaycasterSpritesShader = new Shader("Raycaster Sprites Compute Shader");
-    mRaycasterSpritesShader->AddPath(QOpenGLShader::Compute, ":/resources/Shaders/RaycasterSprites.glsl");
+    mRaycasterSpritesShader->AddPath(QOpenGLShader::Compute, ":/Resources/Shaders/RaycasterSprites.glsl");
     mRaycasterSpritesShader->AddUniform("screen.width");
     mRaycasterSpritesShader->AddUniform("screen.height");
     mRaycasterSpritesShader->AddUniform("sprite.width");
