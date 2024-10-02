@@ -9,11 +9,10 @@ namespace RaycasterEngine
 {
     class Helper
     {
-    private:
-        Helper();
+      public:
+        Helper() = delete;
 
-    public:
-        static QByteArray GetBytes(QString path);
+        static QByteArray GetBytes(const QString& path);
         static QQuaternion RotateX(float angleRadians);
         static QQuaternion RotateY(float angleRadians);
         static QQuaternion RotateZ(float angleRadians);

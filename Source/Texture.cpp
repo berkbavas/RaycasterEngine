@@ -1,17 +1,26 @@
 #include "Texture.h"
 
-#include <QDebug>
+#include "Logger.h"
 
-RaycasterEngine::Texture::Texture(const QString& path)
-    : mPath(path)
+#include <QImage>
+
+RaycasterEngine::Texture::Texture(const QString& path, const QString& name, GLuint unit)
+    : mName(name)
+    , mUnit(unit)
+
 {
     initializeOpenGLFunctions();
 
-    glGenTextures(1, &mID);
-    QImage image(mPath);
+    QImage image(path);
     image = image.convertToFormat(QImage::Format_RGBA8888);
 
-    glBindTexture(GL_TEXTURE_2D, mID);
+    if (image.isNull())
+    {
+        RE_EXIT_FAILURE("Texture::Texture: Could not load image at '{}'.", path.toStdString());
+    }
+
+    glGenTextures(1, &mId);
+    glBindTexture(GL_TEXTURE_2D, mId);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.constBits());
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -19,20 +28,9 @@ RaycasterEngine::Texture::Texture(const QString& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    qInfo() << "Texture" << path << "is loaded and created. ID is" << mID << "Size is" << image.width() << "x" << image.height();
-}
+    mWidth = image.width();
+    mHeight = image.height();
+    mTarget = GL_TEXTURE_2D;
 
-RaycasterEngine::Texture::~Texture()
-{
-    glDeleteTextures(1, &mID);
-}
-
-unsigned int RaycasterEngine::Texture::ID() const
-{
-    return mID;
-}
-
-const QString& RaycasterEngine::Texture::GetPath() const
-{
-    return mPath;
+    LOG_DEBUG("Texture::Texture: Texture '{}' has been loaded.", path.toStdString());
 }

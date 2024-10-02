@@ -1,20 +1,23 @@
-#version 430 core
+#version 450 core
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
-layout(rgba8,   location = 1, binding = 1) uniform image2D textures;
+layout(rgba8, location = 1, binding = 1) uniform image2D textures;
 
-struct Player {
+struct Player
+{
     vec2 position;
     vec2 direction;
 };
 
-struct Camera {
+struct Camera
+{
     vec2 plane;
 };
 
-struct Screen {
+struct Screen
+{
     int width;
     int height;
 };
@@ -68,25 +71,25 @@ void main()
     float floorX = player.position.x + rowDistance * rayDirX0;
     float floorY = player.position.y + rowDistance * rayDirY0;
 
-    for(int x = 0; x < screen.width; ++x)
+    for (int x = 0; x < screen.width; ++x)
     {
-      // the cell coord is simply got from the integer parts of floorX and floorY
-      int cellX = int(floorX);
-      int cellY = int(floorY);
+        // the cell coord is simply got from the integer parts of floorX and floorY
+        int cellX = int(floorX);
+        int cellY = int(floorY);
 
-      // get the texture coordinate from the fractional part
-      int tx = int(1 * 64 * (floorX - cellX)) & (64 - 1);
-      int ty = int(1 * 64 * (floorY - cellY)) & (64 - 1);
+        // get the texture coordinate from the fractional part
+        int tx = int(1 * 64 * (floorX - cellX)) & (64 - 1);
+        int ty = int(1 * 64 * (floorY - cellY)) & (64 - 1);
 
-      floorX += floorStepX;
-      floorY += floorStepY;
+        floorX += floorStepX;
+        floorY += floorStepY;
 
-      // Floor
-      vec3 color = imageLoad(textures, ivec2(3 * 64  + tx, ty)).rgb / 2;
-      imageStore(outputImage, ivec2(x, screen.height - y - 1), vec4(color, 1));
+        // Floor
+        vec3 color = imageLoad(textures, ivec2(3 * 64 + tx, ty)).rgb / 2;
+        imageStore(outputImage, ivec2(x, screen.height - y - 1), vec4(color, 1));
 
-      // Ceiling
-      color = imageLoad(textures, ivec2(6 * 64 + tx, ty)).rgb / 2;
-      imageStore(outputImage, ivec2(x, y), vec4(color, 1));
+        // Ceiling
+        color = imageLoad(textures, ivec2(6 * 64 + tx, ty)).rgb / 2;
+        imageStore(outputImage, ivec2(x, y), vec4(color, 1));
     }
 }

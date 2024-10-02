@@ -1,13 +1,12 @@
-#include "Constants.h"
-#include "Window.h"
+#include "Controller.h"
 
 #include <QApplication>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    RaycasterEngine::Window w;
-    w.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    w.show();
+    RaycasterEngine::Controller c;
+    c.Run();
+
     return app.exec();
 }

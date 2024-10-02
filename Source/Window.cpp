@@ -1,24 +1,12 @@
 #include "Window.h"
-#include "Controller.h"
 
 #include <QDateTime>
-#include <QKeyEvent>
 
-#include <QDebug>
-
-RaycasterEngine::Window::Window(QWindow *parent)
+RaycasterEngine::Window::Window(QWindow* parent)
     : QOpenGLWindow(QOpenGLWindow::UpdateBehavior::NoPartialUpdate, parent)
-
 {
-    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-    format.setMajorVersion(4);
-    format.setMinorVersion(3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setSamples(4);
-    format.setSwapInterval(1);
-    setFormat(format);
-
-    connect(this, &QOpenGLWindow::frameSwapped, this, [=]() { update(); });
+    connect(this, &QOpenGLWindow::frameSwapped, [=]()
+            { update(); });
 }
 
 void RaycasterEngine::Window::initializeGL()
@@ -28,53 +16,49 @@ void RaycasterEngine::Window::initializeGL()
     mCurrentTime = QDateTime::currentMSecsSinceEpoch();
     mPreviousTime = mCurrentTime;
 
-    QtImGui::initialize(this);
-
-    mController = new Controller;
-    mController->SetWindow(this);
-    mController->Init();
+    emit Initialize();
 }
 
-void RaycasterEngine::Window::resizeGL(int w, int h)
+void RaycasterEngine::Window::resizeGL(int width, int height)
 {
-    mController->Resize(w, h);
+    emit Resize(width, height);
 }
 
 void RaycasterEngine::Window::paintGL()
 {
     mCurrentTime = QDateTime::currentMSecsSinceEpoch();
-    float ifps = (mCurrentTime - mPreviousTime) * 0.001f;
+    const float ifps = (mCurrentTime - mPreviousTime) * 0.001f;
     mPreviousTime = mCurrentTime;
 
-    mController->Render(ifps);
+    emit Render(ifps);
 }
 
-void RaycasterEngine::Window::keyPressEvent(QKeyEvent *event)
+void RaycasterEngine::Window::keyPressEvent(QKeyEvent* event)
 {
-    mController->KeyPressed(event);
+    emit KeyPressed(event);
 }
 
-void RaycasterEngine::Window::keyReleaseEvent(QKeyEvent *event)
+void RaycasterEngine::Window::keyReleaseEvent(QKeyEvent* event)
 {
-    mController->KeyReleased(event);
+    emit KeyReleased(event);
 }
 
-void RaycasterEngine::Window::mousePressEvent(QMouseEvent *event)
+void RaycasterEngine::Window::mousePressEvent(QMouseEvent* event)
 {
-    mController->MousePressed(event);
+    emit MousePressed(event);
 }
 
-void RaycasterEngine::Window::mouseReleaseEvent(QMouseEvent *event)
+void RaycasterEngine::Window::mouseReleaseEvent(QMouseEvent* event)
 {
-    mController->MouseReleased(event);
+    emit MouseReleased(event);
 }
 
-void RaycasterEngine::Window::mouseMoveEvent(QMouseEvent *event)
+void RaycasterEngine::Window::mouseMoveEvent(QMouseEvent* event)
 {
-    mController->MouseMoved(event);
+    emit MouseMoved(event);
 }
 
-void RaycasterEngine::Window::wheelEvent(QWheelEvent *event)
+void RaycasterEngine::Window::wheelEvent(QWheelEvent* event)
 {
-    mController->WheelMoved(event);
+    emit WheelMoved(event);
 }

@@ -1,25 +1,20 @@
 #pragma once
 
+#include <QInputEvent>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLWindow>
 
-#include <imgui.h>
-#include <QtImGui.h>
-
 namespace RaycasterEngine
 {
-    class Controller;
-
-    class Window : public QOpenGLWindow, protected QOpenGLExtraFunctions
+    class Window : public QOpenGLWindow, public QOpenGLExtraFunctions
     {
         Q_OBJECT
-
-    public:
+      public:
         Window(QWindow* parent = nullptr);
 
-    private:
+      private:
         void initializeGL() override;
-        void resizeGL(int w, int h) override;
+        void resizeGL(int width, int height) override;
         void paintGL() override;
         void keyPressEvent(QKeyEvent*) override;
         void keyReleaseEvent(QKeyEvent*) override;
@@ -28,9 +23,22 @@ namespace RaycasterEngine
         void mouseMoveEvent(QMouseEvent*) override;
         void wheelEvent(QWheelEvent*) override;
 
-    private:
+      signals:
+        // Core Events
+        void Initialize();
+        void Resize(int w, int h);
+        void Render(float ifps);
+
+        // Input Events
+        void KeyPressed(QKeyEvent*);
+        void KeyReleased(QKeyEvent*);
+        void MousePressed(QMouseEvent*);
+        void MouseReleased(QMouseEvent*);
+        void MouseMoved(QMouseEvent*);
+        void WheelMoved(QWheelEvent*);
+
+      private:
         long long mPreviousTime;
         long long mCurrentTime;
-        Controller* mController;
     };
 }

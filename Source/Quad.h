@@ -1,22 +1,19 @@
 #pragma once
 
 #include <QOpenGLExtraFunctions>
-#include <QOpenGLFunctions>
-#include <QOpenGLVertexArrayObject>
 
 namespace RaycasterEngine
 {
     class Quad : protected QOpenGLExtraFunctions
     {
-    public:
+      public:
         Quad();
-        ~Quad();
 
         void Render();
+        void Destroy();
 
-    private:
-        unsigned int mVAO;
-        unsigned int mVBO;
-        static const float VERTICES[24];
+      private:
+        unsigned int mVertexArray;
+        unsigned int mVertexBuffer;
     };
 }

@@ -4,7 +4,7 @@ project(RaycasterEngine VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_PREFIX_PATH "$ENV{Qt5_DIR}")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOMOC ON)
@@ -12,10 +12,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(INCLUDE_DIR Libs/qtimgui/include)
-
 set(LIBS_DIR Libs/qtimgui/lib)
-
-set(LIBS imgui implot qt_imgui_widgets)
+set(LIBS imgui qt_imgui_widgets)
 
 find_package(Qt5 COMPONENTS Core Widgets OpenGL Gui REQUIRED)
 
@@ -32,5 +30,4 @@ add_executable(RaycasterEngine ${SOURCES})
 target_link_libraries(RaycasterEngine Qt5::Core Qt5::Widgets Qt5::OpenGL ${LIBS})
 
 add_custom_command(TARGET RaycasterEngine
-    POST_BUILD COMMAND "$ENV{Qt5_DIR}/bin/windeployqt.exe"
-    "\"$(OutDir)$(TargetName)$(TargetExt)\"")
+POST_BUILD COMMAND "$ENV{Qt5_DIR}/bin/windeployqt.exe" "\"$(OutDir)$(TargetName)$(TargetExt)\"")

@@ -1,4 +1,4 @@
-#version 430 core
+#version 450 core
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -6,14 +6,16 @@ layout(rgba32f, location = 0, binding = 0) uniform image2D outputImage;
 layout(rgba8, location = 1, binding = 1) uniform image2D textures;
 layout(rgba32f, location = 2, binding = 2) uniform image1D depthBuffer;
 
-struct Sprite {
+struct Sprite
+{
     int width;
     int height;
     int screenX;
     int textureIndex;
 };
 
-struct Draw {
+struct Draw
+{
     int startX;
     int endX;
     int startY;
@@ -22,7 +24,8 @@ struct Draw {
     float transformY;
 };
 
-struct Screen {
+struct Screen
+{
     int width;
     int height;
 };

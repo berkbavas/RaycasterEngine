@@ -1,12 +1,12 @@
 #include "Helper.h"
 
+#include "Logger.h"
+
 #include <QDebug>
 #include <QFile>
 #include <QtMath>
 
-RaycasterEngine::Helper::Helper() {}
-
-QByteArray RaycasterEngine::Helper::GetBytes(QString path)
+QByteArray RaycasterEngine::Helper::GetBytes(const QString& path)
 {
     QFile file(path);
     if (file.open(QFile::ReadOnly))
@@ -15,7 +15,7 @@ QByteArray RaycasterEngine::Helper::GetBytes(QString path)
     }
     else
     {
-        qWarning() << QString("Could not open '%1'").arg(path);
+        LOG_FATAL("Could not open {}", path.toStdString());
         return QByteArray();
     }
 }
@@ -85,12 +85,12 @@ void RaycasterEngine::Helper::GetEulerDegrees(const QQuaternion& rotation, float
     QVector3D xAxis = rotation * QVector3D(1, 0, 0);
 
     QVector3D xAxisProj = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-        QVector3D(1, 0, 0);
+                          QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+                          QVector3D(1, 0, 0);
 
     QVector3D left = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-        QVector3D(0, 0, -1);
+                     QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+                     QVector3D(0, 0, -1);
 
     roll = RaycasterEngine::Helper::AngleBetween(xAxis, xAxisProj, left);
 
@@ -110,8 +110,8 @@ QVector3D RaycasterEngine::Helper::GetEulerDegrees(const QQuaternion& rotation)
 QQuaternion RaycasterEngine::Helper::ConstructFromEulerDegrees(float yaw, float pitch, float roll)
 {
     return QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), yaw) *   //
-        QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
-        QQuaternion::fromAxisAndAngle(QVector3D(0, 0, -1), roll);
+           QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), pitch) * //
+           QQuaternion::fromAxisAndAngle(QVector3D(0, 0, -1), roll);
 }
 
 QVector2D RaycasterEngine::Helper::Rotate(const QVector2D& subject, float angle)

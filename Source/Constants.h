@@ -1,7 +1,4 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
-#define SCREEN_WIDTH 1600
+#define SCREEN_WIDTH  1600
 #define SCREEN_HEIGHT 900
-
-#endif // CONSTANTS_H

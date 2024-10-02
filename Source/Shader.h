@@ -1,48 +1,62 @@
 #pragma once
 
-#include <QOpenGLFunctions>
+#include "Logger.h"
+
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLShader>
+#include <map>
 
 namespace RaycasterEngine
 {
-    class Shader : protected QOpenGLFunctions
+    class Shader : protected QOpenGLExtraFunctions
     {
-    public:
+      public:
         Shader(const QString& name);
-        ~Shader();
 
-        bool Init();
+        void Initialize();
         bool Bind();
         void Release();
 
         void AddPath(QOpenGLShader::ShaderTypeBit type, const QString& path);
-        void AddUniform(const QString& uniform);
-        void AddUniforms(const QStringList& uniforms);
-        void SetUniformArray(const QString& uniform, int size);
-        void AddAttribute(const QString& attribute);
-        void AddAttributes(const QStringList& attributes);
 
-        void SetUniformValue(const QString& name, int value);
-        void SetUniformValue(const QString& name, unsigned int value);
-        void SetUniformValue(const QString& name, float value);
-        void SetUniformValue(const QString& name, const QVector2D& value);
-        void SetUniformValue(const QString& name, const QVector3D& value);
-        void SetUniformValue(const QString& name, const QVector4D& value);
-        void SetUniformValue(const QString& name, const QMatrix4x4& value);
-        void SetUniformValue(const QString& name, const QMatrix3x3& value);
-        void SetUniformValueArray(const QString& name, const QVector<QVector3D>& values);
-        void SetSampler(const QString& name, unsigned int unit, unsigned int id, GLenum target = GL_TEXTURE_2D);
+        QString GetName() const;
 
-        QString GetShaderTypeString(QOpenGLShader::ShaderTypeBit type);
+        static QString GetShaderTypeString(QOpenGLShader::ShaderTypeBit type);
 
-    private:
+        template<typename T>
+        void SetUniformValue(const QString& name, T value)
+        {
+            const auto location = mProgram->uniformLocation(name);
+
+            if (0 <= location)
+            {
+                mProgram->setUniformValue(location, value);
+            }
+            else
+            {
+                LOG_FATAL("Shader::SetUniformValue: Uniform location '{}' could not be found.", name.toStdString());
+            }
+        }
+
+        template<typename T>
+        void SetUniformValueArray(const QString& name, const QVector<T>& values)
+        {
+            const auto location = mProgram->uniformLocation(name);
+
+            if (0 <= location)
+            {
+                mProgram->setUniformValueArray(location, values.constData(), values.size());
+            }
+            else
+            {
+                LOG_FATAL("Shader::SetUniformValue: Uniform location '{}' could not be found.", name.toStdString());
+            }
+        }
+
+      private:
+        QSharedPointer<QOpenGLShaderProgram> mProgram;
+        std::map<QOpenGLShader::ShaderTypeBit, QString> mPaths;
+
         QString mName;
-        QOpenGLShaderProgram* mProgram;
-        QMap<QOpenGLShader::ShaderTypeBit, QString> mPaths;
-        QMap<QString, GLuint> mLocations;
-        QStringList mAttributes;
-        QStringList mUniforms;
-        QMap<QString, int> mUniformArrays;
-        bool mSuccess;
     };
 }
