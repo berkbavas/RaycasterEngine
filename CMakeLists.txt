@@ -32,4 +32,7 @@ add_executable(RaycasterEngine ${SOURCES})
 target_link_libraries(RaycasterEngine Qt6::Core Qt6::Widgets Qt6::OpenGL ${LIBS})
 
 add_custom_command(TARGET RaycasterEngine
-POST_BUILD COMMAND "$ENV{Qt6_DIR}/bin/windeployqt.exe" "\"$(OutDir)$(TargetName)$(TargetExt)\"")
+    POST_BUILD COMMAND
+    Qt6::windeployqt 
+    --dir "$<TARGET_FILE_DIR:RaycasterEngine>" 
+    "$<TARGET_FILE_DIR:RaycasterEngine>/$<TARGET_FILE_NAME:RaycasterEngine>")
