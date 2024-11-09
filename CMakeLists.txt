@@ -12,16 +12,21 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(INCLUDE_DIR Libs/qtimgui/include)
-set(LIBS_DIR        Libs/qtimgui/lib)
 
-set(LIBS    debug   debug/imgui             optimized release/imgui
-            debug   debug/qt_imgui_widgets  optimized release/qt_imgui_widgets)
+set(LIBS_DIR Libs/qtimgui/lib)
+
+set(LIBS
+    debug debug/imgui
+    debug debug/qt_imgui_widgets
+    optimized release/imgui
+    optimized release/qt_imgui_widgets
+)
 
 find_package(Qt6 COMPONENTS Core Widgets OpenGL Gui REQUIRED)
 
 add_compile_options(/bigobj)
 
-file(GLOB SOURCES Source/*.cpp Source/*.h RaycasterEngine.qrc)
+file(GLOB SOURCES Source/*.cpp RaycasterEngine.qrc)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}" ${INCLUDE_DIR})
 
@@ -35,4 +40,5 @@ add_custom_command(TARGET RaycasterEngine
     POST_BUILD COMMAND
     Qt6::windeployqt 
     --dir "$<TARGET_FILE_DIR:RaycasterEngine>" 
-    "$<TARGET_FILE_DIR:RaycasterEngine>/$<TARGET_FILE_NAME:RaycasterEngine>")
+    "$<TARGET_FILE_DIR:RaycasterEngine>/$<TARGET_FILE_NAME:RaycasterEngine>"
+)
