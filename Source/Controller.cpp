@@ -136,6 +136,7 @@ void RaycasterEngine::Controller::Render(float ifps)
     ImGui::Text("Player Position: (%.2f, %.2f)", mPlayer.position.x(), mPlayer.position.y());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+    ImGui::End();
     glViewport(0, 0, mWindow->width(), mWindow->height());
     ImGui::Render();
     QtImGui::render();
