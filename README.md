@@ -1,30 +1,48 @@
-# 2D Raycaster Engine
-Traditional 2D raycaster engines run on the CPU, so they have a bottleneck when loading screen textures from the CPU to the GPU for each frame.
-This raycaster engine is implemented using compute shaders, allowing it to avoid this bottleneck since it runs on the GPU.
+# Raycaster Engine
 
-Textures belong to `Wolfenstein 3D`.
+A modern 2D raycaster engine using compute shaders for real-time rendering, inspired by classic games like Wolfenstein 3D.
 
-Raycaster codes are taken from [Lode Vandevenne](https://lodev.org/)'s  [tutorials](https://lodev.org/cgtutor/raycasting.html) and adopted.
+## Getting Started
 
-## Build
-1) Install `CMake 3.25.1` or above.
-2) Install `Visual Studio 2022` and `MSVC C++ v143 Compiler`.
-3) Install `Qt 6.7.3 MSVC2022 64bit` kit.
-4) Set environment variable `Qt6_DIR` as `C:\Qt\6.7.3\msvc2022_64`.
-5) Clone the repo `git clone https://github.com/berkbavas/RaycasterEngine.git`.
-6) Create a folder `mkdir Build`.
-7) Enter the folder `cd Build`.
-8) Run CMake `cmake ..`.
-9) Open `RaycasterEngine.sln` with `Visual Studio 2022`.
-10) Build with `Release` config.
+### Prerequisites
+
+- CMake 3.25.1 or newer
+- Visual Studio 2022 with MSVC v143 C++ Compiler
+- Qt 6.7.3 MSVC2022 64bit
+
+### Build Instructions
+
+1. Set `Qt6_DIR` environment variable to your Qt path (e.g. `C:\Qt\6.7.3\msvc2022_64`)
+2. Clone the repository:
+
+    ```sh
+    git clone https://github.com/berkbavas/RaycasterEngine.git
+    ```
+
+3. Create and enter a build directory:
+
+    ```sh
+    mkdir Build
+    cd Build
+    ```
+
+4. Run CMake:
+
+    ```sh
+    cmake ..
+    ```
+
+5. Open `RaycasterEngine.sln` in Visual Studio and build.
 
 ## Screenshot
-![Screenshot_00](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
 
-## Keywords
-`2D Raycaster`,
-`2D Rendering`,
-`Compute Shaders`,
-`OpenGL`,
-`GLSL`,
-`Wolfenstein 3D`.
+![Screenshot](https://user-images.githubusercontent.com/53399385/210181260-9a01340c-8d6e-451c-80c5-164f749f4cb8.png)
+
+## Credits
+
+- Raycasting logic adapted from [Lode Vandevenne's tutorials](https://lodev.org/cgtutor/raycasting.html)
+- Textures from Wolfenstein 3D
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
